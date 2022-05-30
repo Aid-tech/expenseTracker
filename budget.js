@@ -82,12 +82,21 @@ addExpense.addEventListener("click", e => {
         type = "success";
         notification(notif, message, type);
         const check = InArray (globalExpense, expenseName.value);
-        if (expenseId.value != "" || check != '-1') {
+        if (expenseId.value != '' || check != '-1') {
             const index = (check != '-1') ? check : expenseId.value;
             if(check == '-1') globalExpense[index].name = expenseName.value;
-            globalExpense[index].montant = (check != '-1') ? parseInt(globalExpense[index].montant) + parseInt(expenseValue.value) : expenseValue.value;
-
-            if(expenseId.value != "" && check != '-1') globalExpense.splice(expenseId.value, 1);
+            if(expenseId.value != ''){
+                if(expenseId.value == check){
+                    globalExpense[index].montant = expenseValue.value;
+                } else {
+                    globalExpense[index].montant =  parseInt(globalExpense[index].montant) + parseInt(expenseValue.value);
+                    if(check != '-1') {
+                        globalExpense.splice(expenseId.value, 1)
+                    }
+                }
+            } else {
+                globalExpense[index].montant =  parseInt(globalExpense[index].montant) + parseInt(expenseValue.value);
+            }
             expenseId.value = "";
         } else {
             globalExpense.push(expense);
@@ -124,11 +133,13 @@ function calculate() {
     content.innerHTML = tr;
     credit.innerHTML = `${numberWithEspace(expense)} CFA`;
     let diff = globalBudget - expense;
-    solde.innerHTML = `${numberWithEspace(diff)} CFA`;
+    
     if (diff < 0) {
+        solde.innerHTML = `${numberWithEspace(diff) * -1} CFA`;
         solde.classList.remove("text-success");
         solde.classList.add("text-danger");
     } else {
+        solde.innerHTML = `${numberWithEspace(diff)} CFA`;
         solde.classList.add("text-success");
         solde.classList.remove("text-danger");
     }
@@ -164,6 +175,7 @@ function listen() {
             expenseId.value = '';
             const index = edit.getAttribute('data-el');
             globalExpense.splice(index, 1);
+            calculate()
         });
     });
 }
